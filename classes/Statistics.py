@@ -58,6 +58,7 @@ class Statistics:
 
 
     def log(self) -> None:
+        print(f"Generation: {len(Statistics.all)}")
         print(f"Started: {len(self.started)}")
         print(f"Survived: {len(self.survived)}")
         print(f"Cloned: {len(self.cloned)}")
