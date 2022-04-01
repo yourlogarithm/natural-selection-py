@@ -8,9 +8,7 @@ from classes.Food import Food
 from classes.Movement import Coordinates, Corners
 from classes.Settings import Settings
 import sys
-
 from classes.Statistics import Statistics
-from classes.Visualizer import Visualizer
 
 if Settings.FPS: 
     pygame.init()
@@ -58,7 +56,7 @@ class Simulation(ABC):
             
 
     def run() -> bool:
-        if (not len(Entity.cells)): return False
+        if (not len(Entity.cells) or len(Statistics.all) >= Settings.GENERATIONS): return False
         if (Settings.FPS):
             Simulation.Clock.tick(Settings.FPS)
             Simulation._catchEvents()
@@ -66,9 +64,6 @@ class Simulation(ABC):
         if not Simulation.Paused:
             if Cell.areAllHome():
                 Cell.endGeneration()
-                Statistics.all[-1].log()
-                Statistics.all[-1].appendToCSV()
-                Visualizer.visualize()
                 Food.generate()
                 Cell.startGeneration()
             for cell in Entity.cells:

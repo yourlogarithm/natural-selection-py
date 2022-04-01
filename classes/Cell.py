@@ -29,7 +29,8 @@ class Cell(Entity):
         for cell in Entity.cells:
             cell: Cell
             cell._reset()
-        Statistics(Entity.cells.copy(), Settings.FOOD).start()
+        if (len(Entity.cells) > 0):
+            Statistics(Entity.cells.copy(), Settings.FOOD).start()
 
     def endGeneration() -> None:
         length: int = len(Entity.cells)
@@ -47,7 +48,9 @@ class Cell(Entity):
                     cell._clone()
                     cloned.append(cell)
                 i += 1
-        Statistics.all[-1].end(died, cloned)
+        if Statistics.all[-1].died == None or Statistics.all[-1].cloned == None:
+            Statistics.all[-1].end(died, cloned)
+            Statistics.all[-1].log()
 
     def __init__(self, coordinates: Coordinates, size: int, color: str, speed: int, sense: int) -> None:
         super().__init__(coordinates, size, color)
