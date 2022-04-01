@@ -1,3 +1,4 @@
+from datetime import datetime
 from classes.Simulation import Simulation
 
 if __name__ == "__main__":

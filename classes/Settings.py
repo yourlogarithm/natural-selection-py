@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Dict, Final, Tuple
+from typing import Final, Tuple
 
 class Settings(ABC):
     WIDTH = 750

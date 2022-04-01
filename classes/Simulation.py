@@ -10,6 +10,7 @@ from classes.Settings import Settings
 import sys
 
 from classes.Statistics import Statistics
+from classes.Visualizer import Visualizer
 
 if Settings.FPS: 
     pygame.init()
@@ -66,6 +67,8 @@ class Simulation(ABC):
             if Cell.areAllHome():
                 Cell.endGeneration()
                 Statistics.all[-1].log()
+                Statistics.all[-1].appendToCSV()
+                Visualizer.visualize()
                 Food.generate()
                 Cell.startGeneration()
             for cell in Entity.cells:
