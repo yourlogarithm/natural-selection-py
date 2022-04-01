@@ -6,6 +6,7 @@ from classes.Settings import Settings
 class Food(Entity):
     Variations: int = len(Settings.FOOD_AMOUNT_VARIATION)
     variationIndex: int = 0
+    repeat: bool = True
 
     def generate() -> None:
         Entity.food.clear()
@@ -15,14 +16,17 @@ class Food(Entity):
             coordinates: Coordinates = Coordinates(x, y)
             Food(coordinates, Settings.FOOD_SIZE, '#e069ba').spawn()
 
-        if (Settings.FOOD_AMOUNT_VARIATION[Food.variationIndex] > Settings.FOOD):
-            Settings.FOOD += 1
-        elif (Settings.FOOD_AMOUNT_VARIATION[Food.variationIndex] < Settings.FOOD):
-            Settings.FOOD -= 1
-        else: 
-            Food.variationIndex += 1
-            if (Food.variationIndex == Food.Variations and Settings.CYCLIC_VARIATION):
-                Food.variationIndex = 0
+        if (Food.repeat):
+            if (Settings.FOOD_AMOUNT_VARIATION[Food.variationIndex] > Settings.FOOD):
+                Settings.FOOD += 1
+            elif (Settings.FOOD_AMOUNT_VARIATION[Food.variationIndex] < Settings.FOOD):
+                Settings.FOOD -= 1
+            else: 
+                Food.variationIndex += 1
+                if (Food.variationIndex == Food.Variations and Settings.CYCLIC_VARIATION):
+                    Food.variationIndex = 0
+                elif (Food.variationIndex == Food.Variations and not Settings.CYCLIC_VARIATION):
+                    Food.repeat = False
 
 
 

@@ -1,12 +1,12 @@
-from ctypes import Union
 from enum import Enum
-from random import choice, randrange
+from random import choice, randrange, uniform
 from math import ceil
-from typing import Final, List
+from typing import Final, List, Union
 from classes.Entity import Entity
 from classes.Food import Food
 from classes.Movement import Coordinates, Corners, Direction
 from classes.Settings import Settings
+from classes.Statistics import Statistics
 
 class CellState(Enum):
     HOME = 0
@@ -29,18 +29,25 @@ class Cell(Entity):
         for cell in Entity.cells:
             cell: Cell
             cell._reset()
+        Statistics(Entity.cells.copy(), Settings.FOOD).start()
 
     def endGeneration() -> None:
         length: int = len(Entity.cells)
         i: int = 0
+        died: List[Cell] = []
+        cloned: List[Cell] = []
         while i < length:
             cell: Cell = Entity.cells[i]
             if cell._score == 0:
                 cell._terminate() 
+                died.append(cell)
                 length -= 1
             else:
-                if cell._score == 2: cell._clone()
+                if cell._score == 2: 
+                    cell._clone()
+                    cloned.append(cell)
                 i += 1
+        Statistics.all[-1].end(died, cloned)
 
     def __init__(self, coordinates: Coordinates, size: int, color: str, speed: int, sense: int) -> None:
         super().__init__(coordinates, size, color)
@@ -94,10 +101,38 @@ class Cell(Entity):
 
     def isEnoughEnergy(self) -> bool:
         nearestCorner: Coordinates = self._getNearestCorner()
-        # TODO: compare getDistanceToPoint() and getTotalDifferenceXY()
         xyTotalDifference: int = Coordinates.getDistanceToPoint(self._coordinates, nearestCorner)
         energyToGoHome: int = ceil(xyTotalDifference / self._SPEED) * self._ENERGY_COST
         return energyToGoHome < self._energy
+
+    def _enemiesNearby(self) -> List:
+        enemies: List[Cell] = []
+        for cell in Entity.cells:
+            cell: Cell
+            if ( 
+                cell.state != CellState.HOME and 
+                cell._SIZE >= self._SIZE * Settings.REQUIRED_SIZE_DIFFERENCE and 
+                Coordinates.getDistanceToPoint(self._coordinates, cell._coordinates) <= self._SENSE
+            ):
+                enemies.append(cell)
+        return enemies
+
+    def _nearestPrey(self):
+        prey: Union[Cell, None] = None
+        if len(Entity.cells) > 0:
+            distance: int = Settings.WIDTH * Settings.HEIGHT
+            for cell in Entity.cells:
+                newDistance: int = Coordinates.getDistanceToPoint(self._coordinates, cell._coordinates)
+                cell: Cell
+                if (
+                    distance > newDistance and 
+                    newDistance <= self._SENSE and 
+                    cell._SIZE * Settings.REQUIRED_SIZE_DIFFERENCE <= self._SIZE and 
+                    cell.state != CellState.HOME
+                ):
+                    distance = newDistance
+                    prey = cell
+        return prey
 
     def _getNearestCorner(self, assign = False) -> Coordinates:
         if not self._nearestCorner:
@@ -146,17 +181,17 @@ class Cell(Entity):
             self.state = CellState.RETURNING
             return
 
-        # if len(self._enemiesNearby()) > 0 and self._movesCounter > 35:
-        #     self.state = CellState.FLEEING
-        #     return
+        if len(self._enemiesNearby()) > 0 and self._movesCounter > 50:
+            self.state = CellState.FLEEING
+            return
 
         if self._nearestFood():
             self.state = CellState.GRABBING
             return
 
-        # if self._nearestPrey() and self._movesCounter > 70:
-        #     self.state = CellState.ATTACKING
-        #     return
+        if self._nearestPrey() and self._movesCounter > 150:
+            self.state = CellState.ATTACKING
+            return
         
         self._move()
         hasSwitchedDirection: bool = False
@@ -220,13 +255,12 @@ class Cell(Entity):
         speed: int = self._SPEED
         sense: int = self._SENSE 
         color: str = self.COLOR
-        if (randrange(0, 100) < Settings.MUTATION_CHANCE):
+        if (uniform(0, 1) < Settings.MUTATION_CHANCE):
             value = choice((-1, 1))
             match randrange(0, 3):
                 case 0: size += value * Settings.SIZE_MUTATION
                 case 1: speed += value * Settings.SPEED_MUTATION
                 case _: sense += value * Settings.SENSE_MUTATION
-
         Cell(self._getNearestCorner(), size, color, speed, sense).spawn()
 
 

@@ -1,5 +1,6 @@
 from abc import ABC
 from random import randrange
+from typing import Union
 import pygame
 from classes.Cell import Cell
 from classes.Entity import Entity
@@ -8,9 +9,14 @@ from classes.Movement import Coordinates, Corners
 from classes.Settings import Settings
 import sys
 
+from classes.Statistics import Statistics
+
+if Settings.FPS: 
+    pygame.init()
+
 class Simulation(ABC):
-    Clock = pygame.time.Clock()
-    Screen = pygame.display.set_mode((Settings.WIDTH, Settings.HEIGHT))
+    Clock: Union[pygame.time.Clock, None] = None
+    Screen: Union[pygame.Surface, None] = None
     Paused: bool = False
 
     days: int = 0
@@ -35,7 +41,9 @@ class Simulation(ABC):
                     Simulation.Paused = not Simulation.Paused
 
     def initialize() -> None:
-        pygame.init()
+        if Settings.FPS:
+            Simulation.Clock = pygame.time.Clock()
+            Simulation.Screen = pygame.display.set_mode((Settings.WIDTH, Settings.HEIGHT))
         for _ in range(Settings.CELLS):
             coordinates: Coordinates = None
             match randrange(0, 4):
@@ -50,13 +58,14 @@ class Simulation(ABC):
 
     def run() -> bool:
         if (not len(Entity.cells)): return False
-        Simulation.Clock.tick(Settings.FPS)
-        print(Simulation.Clock.get_fps())
-        Simulation._catchEvents()
-        Simulation._draw()
+        if (Settings.FPS):
+            Simulation.Clock.tick(Settings.FPS)
+            Simulation._catchEvents()
+            Simulation._draw()
         if not Simulation.Paused:
             if Cell.areAllHome():
                 Cell.endGeneration()
+                Statistics.all[-1].log()
                 Food.generate()
                 Cell.startGeneration()
             for cell in Entity.cells:
