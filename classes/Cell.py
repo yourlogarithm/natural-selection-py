@@ -30,7 +30,7 @@ class Cell(Entity):
             cell: Cell
             cell._reset()
         if (len(Entity.cells) > 0):
-            Statistics(Entity.cells.copy(), Settings.FOOD).start()
+            Statistics(Entity.cells.copy(), Food.amount).start()
 
     def endGeneration() -> None:
         length: int = len(Entity.cells)

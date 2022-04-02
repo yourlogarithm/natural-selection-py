@@ -58,8 +58,8 @@ class Statistics:
     def end(self, survived: Tuple, cloned: Tuple) -> None:
         self.cloned = cloned
         self.died = []
-        for cell in survived:
-            if cell not in self.started:
+        for cell in self.started:
+            if cell not in survived:
                 self.died.append(cell)
 
     def log(self) -> None:

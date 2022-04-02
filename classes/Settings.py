@@ -15,13 +15,10 @@ class Settings(ABC):
     SHOW_RELATIVE_TO_INITIALS = True
     ENERGY: Final[int] = 50000
     REQUIRED_SIZE_DIFFERENCE: Final[float] = 1.3 # 30%
-    FOOD: Final[int] = 20
     FOOD_SIZE: Final[int] = 5
     FOOD_AMOUNT_VARIATION: Final[Tuple[Tuple[int]]] = (
-        (20, 90),
-        (80, 90),
-        (80, 90),
-        (50, 90)
+        (100, 90),
+        (20, 0)
     )
     FOOD_DISTANCE_FROM_SPAWN: Final[int] = 125
     MUTATION_CHANCE: Final[float] = 0.85
@@ -40,7 +37,6 @@ class Settings(ABC):
             'SENSE': Settings.SENSE,
             'ENERGY': Settings.ENERGY,
             'REQUIRED_SIZE_DIFFERENCE': Settings.REQUIRED_SIZE_DIFFERENCE,
-            'FOOD': Settings.FOOD,
             'FOOD_SIZE': Settings.FOOD_SIZE,
             'FOOD_AMOUNT_VARIATION': Settings.FOOD_AMOUNT_VARIATION,
             'FOOD_DISTANCE_FROM_SPAWN': Settings.FOOD_DISTANCE_FROM_SPAWN,

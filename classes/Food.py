@@ -4,13 +4,14 @@ from classes.Movement import Coordinates
 from classes.Settings import Settings
 
 class Food(Entity):
+    amount: int = Settings.FOOD_AMOUNT_VARIATION[0][0]
     variationIndex: int = 0
     hold: int = 0
     repeat: bool = True
 
     def generate() -> None:
         Entity.food.clear()
-        for _ in range(Settings.FOOD):
+        for _ in range(Food.amount):
             x: int = randrange(Settings.FOOD_DISTANCE_FROM_SPAWN, Settings.WIDTH-Settings.FOOD_DISTANCE_FROM_SPAWN)
             y: int = randrange(Settings.FOOD_DISTANCE_FROM_SPAWN, Settings.HEIGHT-Settings.FOOD_DISTANCE_FROM_SPAWN)
             coordinates: Coordinates = Coordinates(x, y)
@@ -18,10 +19,10 @@ class Food(Entity):
 
         if (Food.repeat):
             target = Settings.FOOD_AMOUNT_VARIATION[Food.variationIndex][0]
-            if (target > Settings.FOOD):
-                Settings.FOOD += 1
-            elif (target < Settings.FOOD):
-                Settings.FOOD -= 1
+            if (target > Food.amount):
+                Food.amount += 1
+            elif (target < Food.amount):
+                Food.amount -= 1
             else: Food.hold += 1
 
             if (Food.hold == Settings.FOOD_AMOUNT_VARIATION[Food.variationIndex][1] and Settings.FOOD_AMOUNT_VARIATION[Food.variationIndex][1] != 0):
@@ -29,7 +30,7 @@ class Food(Entity):
                 Food.variationIndex += 1
                 if (Food.variationIndex == len(Settings.FOOD_AMOUNT_VARIATION)):
                     Food.variationIndex = 0
-            elif (target == Settings.FOOD and not Settings.FOOD_AMOUNT_VARIATION[Food.variationIndex][1]):
+            elif (target == Food.amount and not Settings.FOOD_AMOUNT_VARIATION[Food.variationIndex][1]):
                 Food.repeat = False
 
             

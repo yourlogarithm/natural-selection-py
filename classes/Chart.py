@@ -57,5 +57,5 @@ class Visualizer:
         plt.xlabel('Generation')
         plt.ylabel(datasetType.name)
         plt.grid()
-        plt.legend()
+        if (datasetType != DatasetType.FOOD): plt.legend()
         plt.show()
