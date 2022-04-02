@@ -1,61 +1,38 @@
+from enum import Enum
+from typing import List, Tuple
 from classes.Settings import Settings
 from classes.Statistics import Statistics
-from enum import Enum
 import matplotlib.pyplot as plt
 
-class DatasetType(Enum):
-    AVERAGE = 0
-    LOWEST = 1
-    HIGHEST = 2
-    CELLS = 3
-    FOOD = 4
+class Datasets(Enum):
+    Population = 0
+    Maximum = 1
+    Minimum = 2
+    Average = 3
 
 class Visualizer:
-    def draw(datasetType: DatasetType) -> None:
+    def draw() -> None:
         gen = [i for i in range(len(Statistics.all))]
-        x = []
-        y = []
-        z = []
 
-        match datasetType:
-            case DatasetType.AVERAGE: 
-                x = [statistic.avgSize for statistic in Statistics.all]
-                y = [statistic.avgSpeed for statistic in Statistics.all]
-                z = [statistic.avgSense for statistic in Statistics.all]
-            case DatasetType.LOWEST:
-                x = [statistic.lowestSize for statistic in Statistics.all]
-                y = [statistic.lowestSpeed for statistic in Statistics.all]
-                z = [statistic.lowestSense for statistic in Statistics.all]
-            case DatasetType.HIGHEST:
-                x = [statistic.highestSize for statistic in Statistics.all]
-                y = [statistic.highestSpeed for statistic in Statistics.all]
-                z = [statistic.highestSense for statistic in Statistics.all]
-            case DatasetType.CELLS:
-                x = [len(statistic.started) for statistic in Statistics.all]
-                y = [len(statistic.cloned) for statistic in Statistics.all]
-                z = [len(statistic.died) for statistic in Statistics.all]
-            case DatasetType.FOOD:
-                x = [statistic.food for statistic in Statistics.all]
+        figures: List[plt.Figure] = []
+        for dataset in Datasets:
+            fig = plt.figure(num=dataset.name, figsize=(10, 5))
+            ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+            match dataset:
+                case Datasets.Maximum: x, y, z = Statistics.maximum()
+                case Datasets.Minimum: x, y, z = Statistics.minimum()
+                case Datasets.Average: x, y, z = Statistics.average()
+                case _: x, y, z, w = Statistics.population()
+            if dataset != Datasets.Population:
+                labels = ['Size', 'Speed', 'Sense']
+            else:
+                labels = ['Population', 'Cloned', 'Died', 'Food']
 
-        if (Settings.SHOW_RELATIVE_TO_INITIALS and datasetType != DatasetType.FOOD):
-            x = [x[i] / Settings.SIZE for i in range(len(x))]
-            y = [y[i] / Settings.SPEED for i in range(len(y))]
-            z = [z[i] / Settings.SENSE for i in range(len(z))]
-
-        labels = ['Size', 'Speed', 'Sense']
-        if datasetType == DatasetType.CELLS:
-            labels = ['Cells', 'Cloned', 'Died']
-        
-        if (datasetType != DatasetType.FOOD):
-            plt.plot(gen, x, label=labels[0])
-            plt.plot(gen, y, label=labels[1])
-            plt.plot(gen, z, label=labels[2])
-        else:
-            plt.plot(gen, x)
-    
-        plt.xticks(rotation = 25)
-        plt.xlabel('Generation')
-        plt.ylabel(datasetType.name)
-        plt.grid()
-        if (datasetType != DatasetType.FOOD): plt.legend()
+            ax.plot(gen, x, label=labels[0])
+            ax.plot(gen, y, label=labels[1])
+            ax.plot(gen, z, label=labels[2])
+            if dataset == Datasets.Population: ax.plot(gen, w, label=labels[3])
+            ax.grid()
+            ax.legend()
+            
         plt.show()

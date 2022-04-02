@@ -26,12 +26,41 @@ class Statistics:
             stat: Statistics
             rows.append((
                 len(stat.started), stat.food, round(stat.avgSize, 3), stat.avgSpeed, 
-                stat.avgSense, stat.lowestSize, stat.lowestSpeed, 
-                stat.lowestSense, stat.highestSize, stat.highestSpeed, 
-                stat.highestSense, len(stat.cloned), len(stat.died)
+                stat.avgSense, stat.minSize, stat.minSpeed, 
+                stat.minSense, stat.maxSize, stat.maxSpeed, 
+                stat.maxSense, len(stat.cloned), len(stat.died)
             ))
         Statistics.myWriter.writerow(fields)
         Statistics.myWriter.writerows(rows)
+
+    def average() -> Tuple[List[float], List[float], List[float]]:
+        return (
+            [stat.avgSize / Settings.SIZE for stat in Statistics.all],
+            [stat.avgSpeed / Settings.SPEED for stat in Statistics.all],
+            [stat.avgSense / Settings.SENSE for stat in Statistics.all]
+        )
+
+    def minimum() -> Tuple[List[float], List[float], List[float]]:
+        return (
+            [stat.minSize / Settings.SIZE for stat in Statistics.all],
+            [stat.minSpeed / Settings.SPEED for stat in Statistics.all],
+            [stat.minSense / Settings.SENSE for stat in Statistics.all]
+        )
+    
+    def maximum() -> Tuple[List[float], List[float], List[float]]:
+        return (
+            [stat.maxSize / Settings.SIZE for stat in Statistics.all],
+            [stat.maxSpeed / Settings.SPEED for stat in Statistics.all],
+            [stat.maxSense / Settings.SENSE for stat in Statistics.all]
+        )
+
+    def population() -> Tuple[List[float], List[float], List[float], List[float]]:
+        return (
+            [len(stat.started) for stat in Statistics.all],
+            [len(stat.cloned) for stat in Statistics.all],
+            [len(stat.died) for stat in Statistics.all],
+            [stat.food for stat in Statistics.all]
+        )
 
     def __init__(self, cells: Tuple, food: int) -> None:
         self.started: Final[Tuple] = cells
@@ -41,13 +70,13 @@ class Statistics:
         self.avgSpeed = round(statistics.mean(cell._SPEED for cell in self.started), 3)
         self.avgSense = round(statistics.mean(cell._SENSE for cell in self.started), 3)
 
-        self.lowestSize = round(min(cell._SIZE for cell in self.started), 4)
-        self.lowestSpeed = round(min(cell._SPEED for cell in self.started), 4)
-        self.lowestSense = round(min(cell._SENSE for cell in self.started), 4)
+        self.minSize = round(min(cell._SIZE for cell in self.started), 4)
+        self.minSpeed = round(min(cell._SPEED for cell in self.started), 4)
+        self.minSense = round(min(cell._SENSE for cell in self.started), 4)
 
-        self.highestSize: int = round(max(cell._SIZE for cell in self.started), 4)
-        self.highestSpeed: int = round(max(cell._SPEED for cell in self.started), 4)
-        self.highestSense: int = round(max(cell._SENSE for cell in self.started), 4)
+        self.maxSize: int = round(max(cell._SIZE for cell in self.started), 4)
+        self.maxSpeed: int = round(max(cell._SPEED for cell in self.started), 4)
+        self.maxSense: int = round(max(cell._SENSE for cell in self.started), 4)
 
         self.cloned: Union[Tuple, None] = None
         self.died: Union[Tuple, None] = None
@@ -66,5 +95,5 @@ class Statistics:
         print(f'Generation: {len(Statistics.all)}')
         print(f'Food: {self.food} Started: {len(self.started)} Cloned: {len(self.cloned)} Died: {len(self.died)}')
         print(f'Avg Size: {self.avgSize} Avg Speed: {self.avgSpeed} Avg Sense: {self.avgSense}')
-        print(f'Lowest Size: {self.lowestSize} Lowest Speed: {self.lowestSpeed} Lowest Sense: {self.lowestSense}')
-        print(f'Highest Size: {self.highestSize} Highest Speed: {self.highestSpeed} Highest Sense: {self.highestSense}\n')
+        print(f'Lowest Size: {self.minSize} Lowest Speed: {self.minSpeed} Lowest Sense: {self.minSense}')
+        print(f'Highest Size: {self.maxSize} Highest Speed: {self.maxSpeed} Highest Sense: {self.maxSense}\n')

@@ -1,3 +1,3 @@
 TODO: compare getDistanceToPoint() and getTotalDifferenceXY() for class Cell: _isEnoughEnergy()
-TODO: Implement arrows functionality in chart window
-FIXME: Simulation suddenly stops after about 1-2 thousands of generations
+FIXME: Sometimes the simulation stopped after 1-2 thousands generations
+TODO: Implement a way to load previous simulation charts
