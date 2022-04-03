@@ -4,28 +4,26 @@ import json
 from datetime import datetime
 
 class Settings(ABC):
+    _jsonData = json.load(open('./settings.json', 'r'))
     PATH = f'./data/{datetime.now().timestamp()}/'
-    WIDTH = 750
-    HEIGHT = 750
-    FPS = 0
-    CELLS: Final[int] = 15
-    SIZE: Final[int] = 7.5
-    SPEED: Final[int] = 4
-    SENSE: Final[int] = 30
-    SHOW_RELATIVE_TO_INITIALS = True
-    ENERGY: Final[int] = 50000
-    REQUIRED_SIZE_DIFFERENCE: Final[float] = 1.3 # 30%
-    FOOD_SIZE: Final[int] = 5
-    FOOD_AMOUNT_VARIATION: Final[Tuple[Tuple[int]]] = (
-        (100, 90),
-        (20, 0)
-    )
-    FOOD_DISTANCE_FROM_SPAWN: Final[int] = 125
-    MUTATION_CHANCE: Final[float] = 0.85
-    SIZE_MUTATION: Final[float] = 0.1
-    SPEED_MUTATION: Final[float] = 0.1
-    SENSE_MUTATION: Final[float] =0.1
-    GENERATIONS: Final[int] = 5000
+    WIDTH = _jsonData['WIDTH']
+    HEIGHT = _jsonData['HEIGHT']
+    FPS = _jsonData['FPS']
+    CELLS: Final[int] = _jsonData['CELLS']
+    SIZE: Final[int] = _jsonData['SIZE']
+    SPEED: Final[int] = _jsonData['SPEED']
+    SENSE: Final[int] = _jsonData['SENSE']
+    SHOW_RELATIVE_TO_INITIALS = _jsonData['SHOW_RELATIVE_TO_INITIALS']
+    ENERGY: Final[int] = _jsonData['ENERGY']
+    REQUIRED_SIZE_DIFFERENCE: Final[float] = _jsonData['REQUIRED_SIZE_DIFFERENCE']
+    FOOD_SIZE: Final[int] = _jsonData['FOOD_SIZE']
+    FOOD_AMOUNT_VARIATION: Final[Tuple[Tuple[int]]] = _jsonData['FOOD_AMOUNT_VARIATION']
+    FOOD_DISTANCE_FROM_SPAWN: Final[int] = _jsonData['FOOD_DISTANCE_FROM_SPAWN']
+    MUTATION_CHANCE: Final[float] = _jsonData['MUTATION_CHANCE']
+    SIZE_MUTATION: Final[float] = _jsonData['SIZE_MUTATION']
+    SPEED_MUTATION: Final[float] = _jsonData['SPEED_MUTATION']
+    SENSE_MUTATION: Final[float] = _jsonData['SENSE_MUTATION']
+    GENERATIONS: Final[int] = _jsonData['GENERATIONS']
 
     def toJSON() -> str:
         return json.dumps({
