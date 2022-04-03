@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 from random import choice, randrange, uniform
 from math import ceil, pi, sin, cos
 from typing import Final, List, Union
@@ -9,12 +9,12 @@ from classes.Settings import Settings
 from classes.Statistics import Statistics
 
 class CellState(Enum):
-    HOME = 0
-    WANDERING = 1
-    GRABBING = 2
-    ATTACKING = 3
-    FLEEING = 4
-    RETURNING = 5
+    HOME = auto()
+    WANDERING = auto()
+    GRABBING = auto()
+    ATTACKING = auto()
+    FLEEING = auto()
+    RETURNING = auto()
 
 
 class Cell(Entity):

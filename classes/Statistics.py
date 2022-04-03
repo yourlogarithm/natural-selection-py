@@ -1,3 +1,4 @@
+from enum import Enum, auto
 from typing import Final, List, Tuple, Union
 import statistics
 import csv
@@ -5,6 +6,22 @@ from classes.Settings import Settings
 import os
 
 os.mkdir(Settings.PATH)
+
+class Dataset(Enum):
+    AVG_SIZE = auto()
+    AVG_SPEED = auto()
+    AVG_SENSE = auto()
+    MIN_SIZE = auto()
+    MIN_SPEED = auto()
+    MIN_SENSE = auto()
+    MAX_SIZE = auto()
+    MAX_SPEED = auto()
+    MAX_SENSE = auto()
+    POPULATION = auto()
+    FOOD = auto()
+    CLONED = auto()
+    DIED = auto()
+    EATEN = auto()
 
 class Statistics:
     all: List = []
@@ -30,34 +47,22 @@ class Statistics:
         Statistics.myWriter.writerow(fields)
         Statistics.myWriter.writerows(rows)
 
-    def average() -> Tuple[List[float], List[float], List[float]]:
-        return (
-            [stat.avgSize / Settings.SIZE for stat in Statistics.all],
-            [stat.avgSpeed / Settings.SPEED for stat in Statistics.all],
-            [stat.avgSense / Settings.SENSE for stat in Statistics.all]
-        )
-
-    def minimum() -> Tuple[List[float], List[float], List[float]]:
-        return (
-            [stat.minSize / Settings.SIZE for stat in Statistics.all],
-            [stat.minSpeed / Settings.SPEED for stat in Statistics.all],
-            [stat.minSense / Settings.SENSE for stat in Statistics.all]
-        )
-    
-    def maximum() -> Tuple[List[float], List[float], List[float]]:
-        return (
-            [stat.maxSize / Settings.SIZE for stat in Statistics.all],
-            [stat.maxSpeed / Settings.SPEED for stat in Statistics.all],
-            [stat.maxSense / Settings.SENSE for stat in Statistics.all]
-        )
-
-    def population() -> Tuple[List[float], List[float], List[float], List[float]]:
-        return (
-            [len(stat.started) for stat in Statistics.all],
-            [len(stat.cloned) for stat in Statistics.all],
-            [len(stat.died) for stat in Statistics.all],
-            [stat.food for stat in Statistics.all]
-        )
+    def getByDataset(dataset: Dataset):
+        match dataset:
+            case Dataset.AVG_SIZE: return [stat.avgSize / Settings.SIZE for stat in Statistics.all]
+            case Dataset.AVG_SPEED: return [stat.avgSpeed / Settings.SPEED for stat in Statistics.all]
+            case Dataset.AVG_SENSE: return [stat.avgSense / Settings.SENSE for stat in Statistics.all]
+            case Dataset.MIN_SIZE: return [stat.minSize / Settings.SIZE for stat in Statistics.all]
+            case Dataset.MIN_SPEED: return [stat.minSpeed / Settings.SPEED for stat in Statistics.all]
+            case Dataset.MIN_SENSE: return [stat.minSense / Settings.SENSE for stat in Statistics.all]
+            case Dataset.MAX_SIZE: return [stat.maxSize / Settings.SIZE for stat in Statistics.all]
+            case Dataset.MAX_SPEED: return [stat.maxSpeed / Settings.SPEED for stat in Statistics.all]
+            case Dataset.MAX_SENSE: return [stat.maxSense / Settings.SENSE for stat in Statistics.all]
+            case Dataset.POPULATION: return [len(stat.started) for stat in Statistics.all]
+            case Dataset.FOOD: return [stat.food for stat in Statistics.all]
+            case Dataset.CLONED: return [len(stat.cloned) for stat in Statistics.all]
+            case Dataset.DIED: return [len(stat.died) for stat in Statistics.all]
+            case _: return [len(stat.eaten) for stat in Statistics.all]
 
     def __init__(self, cells: Tuple, food: int) -> None:
         self.started: Final[Tuple] = cells

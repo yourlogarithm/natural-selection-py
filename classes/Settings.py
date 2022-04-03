@@ -13,7 +13,6 @@ class Settings(ABC):
     SIZE: Final[int] = _jsonData['SIZE']
     SPEED: Final[int] = _jsonData['SPEED']
     SENSE: Final[int] = _jsonData['SENSE']
-    SHOW_RELATIVE_TO_INITIALS = _jsonData['SHOW_RELATIVE_TO_INITIALS']
     ENERGY: Final[int] = _jsonData['ENERGY']
     REQUIRED_SIZE_DIFFERENCE: Final[float] = _jsonData['REQUIRED_SIZE_DIFFERENCE']
     FOOD_SIZE: Final[int] = _jsonData['FOOD_SIZE']
