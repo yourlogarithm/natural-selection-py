@@ -1,6 +1,6 @@
 from enum import Enum
 from random import choice, randrange, uniform
-from math import ceil
+from math import ceil, pi, sin, cos
 from typing import Final, List, Union
 from classes.Entity import Entity
 from classes.Food import Food
@@ -52,8 +52,8 @@ class Cell(Entity):
             Statistics.all[-1].end(died, cloned)
             Statistics.all[-1].log()
 
-    def __init__(self, coordinates: Coordinates, size: int, color: str, speed: int, sense: int) -> None:
-        super().__init__(coordinates, size, color)
+    def __init__(self, _coordinates: Coordinates, size: int, color: str, speed: int, sense: int) -> None:
+        super().__init__(_coordinates, size, color)
         self.state = CellState.HOME
         self._SPEED: Final[int] = speed
         self._SENSE: Final[int] = sense
@@ -102,7 +102,7 @@ class Cell(Entity):
                 self._coordinates.x += value
                 self._coordinates.y += value
 
-    def isEnoughEnergy(self) -> bool:
+    def _isEnoughEnergy(self) -> bool:
         nearestCorner: Coordinates = self._getNearestCorner()
         xyTotalDifference: int = Coordinates.getDistanceToPoint(self._coordinates, nearestCorner)
         energyToGoHome: int = ceil(xyTotalDifference / self._SPEED) * self._ENERGY_COST
@@ -151,16 +151,16 @@ class Cell(Entity):
         return self._nearestCorner
 
     def _nearestFood(self) -> Food:
-        nearestFruit: Food = None
+        nearestFood: Food = None
         if (len(Entity.food) > 0):
             distance: int = Settings.WIDTH * Settings.HEIGHT
             for food in Entity.food:
                 food: Food
                 newDistance: int = Coordinates.getDistanceToPoint(self._coordinates, food._coordinates)
                 if newDistance < distance and newDistance <= self._SENSE:
-                    nearestFruit = food
+                    nearestFood = food
                     distance = newDistance
-        return nearestFruit
+        return nearestFood
 
     def getRandomDirection(self, initial: bool = False) -> Direction:
         if (initial):
@@ -180,7 +180,7 @@ class Cell(Entity):
         return possibleDirections[randomint]
 
     def _wander(self):
-        if not self.isEnoughEnergy():
+        if not self._isEnoughEnergy():
             self.state = CellState.RETURNING
             return
 
@@ -218,11 +218,11 @@ class Cell(Entity):
             if (willChangeDirection):
                 self._direction = self.getRandomDirection()
 
-    def _moveToCoordinates(self, coordinates: Coordinates):
+    def _moveToCoordinates(self, _coordinates: Coordinates):
         x0: int = self._coordinates.x
         y0: int = self._coordinates.y
-        x1: int = coordinates.x
-        y1: int = coordinates.y
+        x1: int = _coordinates.x
+        y1: int = _coordinates.y
     
         if x0 < x1 and y0 < y1: self._direction = Direction.DOWN_RIGHT
         elif x0 < x1 and y0 > y1: self._direction = Direction.UP_RIGHT
@@ -235,10 +235,50 @@ class Cell(Entity):
 
         self._move()
 
-        return Coordinates.getDistanceToPoint(self._coordinates, coordinates) <= self._SIZE
+        return Coordinates.getDistanceToPoint(self._coordinates, _coordinates) <= self._SIZE
 
     def _returnHome(self):
         if self._moveToCoordinates(self._getNearestCorner(True)): self.state = CellState.HOME
+
+    def _flee(self):
+        enemiesNearby: List[Cell] = self._enemiesNearby()
+        isEscapeCanceled: bool = len(enemiesNearby) == 0
+        if (not isEscapeCanceled):
+            enemiesCoordinates: List[Coordinates] = [cell._coordinates for cell in enemiesNearby]
+            averageAngle: int = Coordinates.getAverageAngle(self._coordinates, enemiesCoordinates)
+            oppositeAngle: int = Coordinates.getOppositeAngle(averageAngle)
+            radians = oppositeAngle * (pi/180)
+            distanceX: int = 1
+            distanceY: int = 1
+            if oppositeAngle < 90 or oppositeAngle > 270: distanceX = -1
+            if oppositeAngle < 180: distanceY = -1
+
+            pointX: int = self._coordinates.x + distanceX * cos(radians)
+            pointY: int = self._coordinates.y + distanceY + sin(radians)
+            if (
+                pointX >= Corners.TOP_LEFT().x and 
+                pointY >= Corners.TOP_LEFT().y and
+                pointX <= Corners.BOTTOM_RIGHT().x and
+                pointY <= Corners.BOTTOM_RIGHT().y
+            ):
+                escapeCoordinates: Coordinates = Coordinates(pointX, pointY)
+                self._moveToCoordinates(escapeCoordinates)
+            else: isEscapeCanceled = True
+        if isEscapeCanceled:
+            if self._score < 2: self.state = CellState.WANDERING
+            else: self.state = CellState.RETURNING
+
+    def _attack(self):
+        nearestPrey: Cell = self._nearestPrey()
+        nearestFood: Food = self._nearestFood()
+        if not self._isEnoughEnergy(): 
+            self._returnHome()
+        elif nearestPrey and nearestFood:
+            nearestFoodDistance: int = Coordinates.getDistanceToPoint(self._coordinates, nearestFood._coordinates)
+            nearestPreyDistance: int = Coordinates.getDistanceToPoint(self._coordinates, nearestPrey._coordinates)
+            if nearestFoodDistance < nearestPreyDistance: self._grab()
+        elif nearestPrey and self._moveToCoordinates(nearestPrey._coordinates): self.eat(nearestPrey)
+        else: self.state = CellState.WANDERING
 
     def _grab(self):
         nearestFood: Food = self._nearestFood()
@@ -248,6 +288,7 @@ class Cell(Entity):
         else: self.state = CellState.WANDERING
     
     def eat(self, entity: Entity):
+        if str(type(entity)) == "<class 'classes.Cell.Cell'>": Statistics.all[-1].eaten.append(entity)
         entity._terminate()
         self._energy = Settings.ENERGY
         self._score += 1

@@ -11,9 +11,6 @@ class Statistics:
     csvFile = open(Settings.PATH + 'statistics.csv', 'a+')
     myWriter = csv.writer(csvFile, delimiter = ',')
 
-    def last():
-        return Statistics.all[-1]
-
     def export() -> None:
         fields = (
             'Started', 'Food', 'Avg Size', 'Avg Speed', 
@@ -80,6 +77,7 @@ class Statistics:
 
         self.cloned: Union[Tuple, None] = None
         self.died: Union[Tuple, None] = None
+        self.eaten: List = []
 
     def start(self) -> None:
         Statistics.all.append(self)
@@ -92,8 +90,8 @@ class Statistics:
                 self.died.append(cell)
 
     def log(self) -> None:
-        print(f'Generation: {len(Statistics.all)}')
-        print(f'Food: {self.food} Started: {len(self.started)} Cloned: {len(self.cloned)} Died: {len(self.died)}')
+        print(f'Generation: {len(Statistics.all)} Food: {self.food} ')
+        print(f'Started: {len(self.started)} Cloned: {len(self.cloned)} Died: {len(self.died)} Eaten: {len(self.eaten)}')
         print(f'Avg Size: {self.avgSize} Avg Speed: {self.avgSpeed} Avg Sense: {self.avgSense}')
         print(f'Lowest Size: {self.minSize} Lowest Speed: {self.minSpeed} Lowest Sense: {self.minSense}')
         print(f'Highest Size: {self.maxSize} Highest Speed: {self.maxSpeed} Highest Sense: {self.maxSense}\n')
