@@ -1,10 +1,8 @@
-from typing import List
 from classes.App import App
 from classes.Cell import Cell
 from classes.Settings import Settings
 from classes.Simulation import Simulation
 from classes.Statistics import Statistics
-from classes.Chart import Visualizer
 
 if __name__ == "__main__":
     Simulation.initialize()
